@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Cheltuieli">
+  <meta name="theme-color" content="#1D9E75">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <title>Cheltuieli Familie</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+  <style>
+    :root {
+      --green: #1D9E75;
+      --green-light: #E1F5EE;
+      --green-dark: #085041;
+      --red: #DC2626;
+      --red-light: #FEE2E2;
+      --bg: #ffffff;
+      --bg2: #F5F5F5;
+      --bg3: #EBEBEB;
+      --text: #1A1A1A;
+      --text2: #6B6B6B;
+      --text3: #9B9B9B;
+      --border: #E0E0E0;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg2); color: var(--text); min-height: 100vh; }
+    
+    .app { max-width: 480px; margin: 0 auto; background: var(--bg2); min-height: 100vh; display: flex; flex-direction: column; }
+    
+    /* Header */
+    .header { background: var(--green); color: white; padding: 16px 16px 12px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { font-size: 18px; font-weight: 600; }
+    .header-sub { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+    
+    /* Tab bar */
+    .tab-bar { display: flex; background: var(--bg); border-bottom: 1px solid var(--border); position: sticky; top: 60px; z-index: 99; }
+    .tab { flex: 1; padding: 10px 4px 8px; text-align: center; font-size: 10px; border: none; background: transparent; cursor: pointer; color: var(--text2); transition: all .2s; font-family: inherit; border-bottom: 2px solid transparent; }
+    .tab i { display: block; font-size: 20px; margin-bottom: 2px; }
+    .tab.active { color: var(--green); border-bottom-color: var(--green); font-weight: 500; }
+    
+    /* Content */
+    .content { flex: 1; padding: 16px; }
+    .section { display: none; }
+    .section.active { display: block; }
+    
+    /* Cards */
+    .card { background: var(--bg); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow); }
+    
+    /* Form elements */
+    .form-group { margin-bottom: 14px; }
+    .form-label { font-size: 11px; color: var(--text2); margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: .05em; font-weight: 500; }
+    select, input[type=text], input[type=number] {
+      width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--bg); color: var(--text); font-size: 16px; font-family: inherit;
+      appearance: none; -webkit-appearance: none;
+    }
+    select:focus, input:focus { outline: none; border-color: var(--green); }
+    
+    .date-box { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 14px; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    
+    .btn { width: 100%; padding: 14px; border: none; border-radius: var(--radius); font-size: 16px; font-weight: 600; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-green { background: var(--green); color: white; }
+    .btn-green:active { opacity: .85; }
+    
+    /* Mode toggle */
+    .mode-toggle { display: flex; gap: 4px; margin-bottom: 14px; background: var(--bg3); border-radius: var(--radius-sm); padding: 3px; }
+    .mode-btn { flex: 1; padding: 7px 4px; text-align: center; font-size: 12px; border: none; background: transparent; cursor: pointer; border-radius: 6px; color: var(--text2); font-family: inherit; font-weight: 500; }
+    .mode-btn.active { background: var(--bg); color: var(--text); box-shadow: var(--shadow); }
+    
+    /* Period nav */
+    .period-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+    .period-nav button { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 14px; cursor: pointer; color: var(--text); font-family: inherit; font-size: 16px; box-shadow: var(--shadow); }
+    .period-nav button:active { opacity: .7; }
+    .period-label { flex: 1; text-align: center; font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.3; }
+    
+    /* Summary row */
+    .sum-row { display: flex; gap: 10px; margin-bottom: 14px; }
+    .sum-card { flex: 1; background: var(--bg); border-radius: var(--radius-sm); padding: 12px; box-shadow: var(--shadow); }
+    .sum-card .val { font-size: 18px; font-weight: 600; color: var(--text); }
+    .sum-card .lbl { font-size: 11px; color: var(--text2); margin-top: 3px; }
+    
+    /* Entry cards */
+    .entry-card { background: var(--bg); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow); transition: all .15s; }
+    .entry-card.armed { background: #FEF2F2; border: 1px solid #FCA5A5; }
+    .entry-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .entry-info { flex: 1; min-width: 0; }
+    .entry-desc { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .entry-meta { font-size: 11px; color: var(--text2); margin-top: 3px; display: flex; align-items: center; gap: 6px; }
+    .badge { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; }
+    .entry-amount { font-size: 15px; font-weight: 600; color: var(--text); white-space: nowrap; text-align: right; }
+    .entry-amount span { font-size: 11px; font-weight: 400; color: var(--text2); }
+    
+    .del-btn { background: none; border: none; cursor: pointer; color: var(--text3); padding: 6px; font-size: 18px; flex-shrink: 0; border-radius: 8px; }
+    .del-btn.armed { background: var(--red-light); color: var(--red); }
+    
+    .del-confirm-row { display: flex; gap: 6px; margin-top: 8px; }
+    .del-yes { flex: 1; padding: 7px; background: var(--red); color: white; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; font-family: inherit; font-weight: 500; }
+    .del-no { flex: 1; padding: 7px; background: var(--bg2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; font-size: 13px; cursor: pointer; font-family: inherit; }
+    
+    .empty { text-align: center; padding: 48px 20px; color: var(--text2); font-size: 14px; }
+    .empty i { font-size: 48px; display: block; margin-bottom: 12px; opacity: .3; }
+    
+    /* Budget */
+    .budget-row { background: var(--bg); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow); }
+    .bar-track { background: var(--bg2); border-radius: 4px; height: 6px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 4px; transition: width .4s; }
+    .budget-input-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    .budget-input-row input { width: 90px; padding: 6px 10px; font-size: 14px; text-align: right; }
+    
+    /* Stats */
+    .bar-row { margin-bottom: 13px; }
+    .month-breakdown { background: var(--bg); border-radius: var(--radius); padding: 14px; margin-top: 14px; box-shadow: var(--shadow); }
+    .month-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--border); }
+    .month-row:last-child { border-bottom: none; }
+    
+    /* Year group in list */
+    .list-year-group { margin-bottom: 16px; }
+    .list-year-header { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--text2); font-weight: 600; padding: 6px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
+    
+    /* Export */
+    .export-btn { width: 100%; padding: 14px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); font-size: 15px; cursor: pointer; color: var(--text); font-family: inherit; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; box-shadow: var(--shadow); font-weight: 500; }
+    .export-btn i { font-size: 22px; color: var(--green); }
+    .export-btn:active { opacity: .7; }
+    
+    /* Import banner */
+    .import-banner { background: var(--green-light); border: 1px solid #5DCAA5; border-radius: var(--radius); padding: 12px 14px; margin-bottom: 16px; font-size: 13px; color: var(--green-dark); display: flex; align-items: center; gap: 10px; }
+    .import-banner i { font-size: 20px; flex-shrink: 0; }
+    
+    /* Toast */
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--green); color: white; padding: 12px 24px; border-radius: var(--radius); font-size: 14px; font-weight: 500; display: none; white-space: nowrap; z-index: 999; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+    
+    /* Safe area for iPhone */
+    .tab-bar { padding-bottom: env(safe-area-inset-bottom, 0); }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>💰 Cheltuieli Familie</h1>
+    <div class="header-sub" id="auto-date">—</div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab active" onclick="showTab('add',this)"><i class="ti ti-plus"></i>Adaugă</button>
+    <button class="tab" onclick="showTab('list',this)"><i class="ti ti-list"></i>Istoric</button>
+    <button class="tab" onclick="showTab('budget',this)"><i class="ti ti-target"></i>Bugete</button>
+    <button class="tab" onclick="showTab('stats',this)"><i class="ti ti-chart-bar"></i>Statistici</button>
+    <button class="tab" onclick="showTab('export',this)"><i class="ti ti-download"></i>Export</button>
+  </div>
+
+  <div class="content">
+
+    <!-- ADAUGĂ -->
+    <div id="tab-add" class="section active">
+      <div class="import-banner"><i class="ti ti-database-import"></i><span>270 cheltuieli importate din Excel (S01–S19). Adaugă înregistrări noi mai jos.</span></div>
+      <div class="card">
+        <div class="form-group"><label class="form-label">Coș / categorie</label><select id="cat-select"></select></div>
+        <div class="form-group"><label class="form-label">Sumă (RON)</label><input type="number" id="amount-input" placeholder="0.00" min="0" step="0.01" inputmode="decimal"></div>
+        <div class="form-group"><label class="form-label">Descriere (opțional)</label><input type="text" id="desc-input" placeholder="ex: Lidl, benzină, medic..."></div>
+        <div class="form-group"><label class="form-label">Dată înregistrată automat</label><div class="date-box"><i class="ti ti-clock" style="color:#9B9B9B"></i><span id="add-date">—</span></div></div>
+        <button class="btn btn-green" onclick="addEntry()"><i class="ti ti-check"></i> Înregistrează cheltuiala</button>
+      </div>
+    </div>
+
+    <!-- ISTORIC -->
+    <div id="tab-list" class="section">
+      <div class="mode-toggle">
+        <button class="mode-btn active" onclick="setListMode('week',this)">Săptămână</button>
+        <button class="mode-btn" onclick="setListMode('month',this)">Lună</button>
+        <button class="mode-btn" onclick="setListMode('year',this)">An</button>
+      </div>
+      <div class="period-nav">
+        <button onclick="changePeriod(-1)"><i class="ti ti-chevron-left"></i></button>
+        <span class="period-label" id="period-label">—</span>
+        <button onclick="changePeriod(1)"><i class="ti ti-chevron-right"></i></button>
+      </div>
+      <div class="form-group"><select id="filter-cat" onchange="renderList()"><option value="">Toate categoriile</option></select></div>
+      <div class="sum-row" id="list-summary"></div>
+      <div id="entry-list"></div>
+    </div>
+
+    <!-- BUGETE -->
+    <div id="tab-budget" class="section">
+      <div class="period-nav">
+        <button onclick="changeBudgetMonth(-1)"><i class="ti ti-chevron-left"></i></button>
+        <span class="period-label" id="budget-month-label">—</span>
+        <button onclick="changeBudgetMonth(1)"><i class="ti ti-chevron-right"></i></button>
+      </div>
+      <div class="sum-row" id="budget-summary"></div>
+      <p style="font-size:12px;color:#6B6B6B;margin-bottom:12px">Setează bugetul lunar per categorie. Bara devine roșie când îl depășești.</p>
+      <div id="budget-list"></div>
+    </div>
+
+    <!-- STATISTICI -->
+    <div id="tab-stats" class="section">
+      <div class="mode-toggle">
+        <button class="mode-btn active" onclick="setStatsMode('week',this)">Săptămână</button>
+        <button class="mode-btn" onclick="setStatsMode('month',this)">Lună</button>
+        <button class="mode-btn" onclick="setStatsMode('year',this)">An</button>
+      </div>
+      <div class="period-nav">
+        <button onclick="changeStatsPeriod(-1)"><i class="ti ti-chevron-left"></i></button>
+        <span class="period-label" id="stats-period-label">—</span>
+        <button onclick="changeStatsPeriod(1)"><i class="ti ti-chevron-right"></i></button>
+      </div>
+      <div id="stats-content"></div>
+    </div>
+
+    <!-- EXPORT -->
+    <div id="tab-export" class="section">
+      <div class="card">
+        <div class="form-group"><label class="form-label">Luna</label><select id="exp-month"></select></div>
+        <div class="form-group"><label class="form-label">Categorie (opțional)</label><select id="exp-cat"><option value="">Toate categoriile</option></select></div>
+      </div>
+      <button class="export-btn" onclick="exportCSV()"><i class="ti ti-file-spreadsheet"></i> Export CSV (Excel)</button>
+      <button class="export-btn" onclick="exportJSON()"><i class="ti ti-braces"></i> Export JSON</button>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CATS=[
+  {code:"A1",label:"Cheltuieli administrative generale",icon:"🏢",bg:"#E6F1FB",fg:"#0C447C"},
+  {code:"C1",label:"Cheltuieli de bază copii (ed+haine)",icon:"🎒",bg:"#EEEDFE",fg:"#3C3489"},
+  {code:"C2",label:"Cheltuieli suplimentare copii",icon:"⭐",bg:"#FBEAF0",fg:"#72243E"},
+  {code:"M1",label:"Mâncare + consumabile casă",icon:"🛒",bg:"#E1F5EE",fg:"#085041"},
+  {code:"ACG",label:"Alte cheltuieli generale & neplanificate",icon:"📦",bg:"#F1EFE8",fg:"#444441"},
+  {code:"R1",label:"Restaurante + cheltuieli RO",icon:"🍽️",bg:"#FAEEDA",fg:"#633806"},
+  {code:"A",label:"Cheltuieli personale Anca",icon:"👩",bg:"#FBEAF0",fg:"#993556"},
+  {code:"P",label:"Cheltuieli personale Petre",icon:"👨",bg:"#E6F1FB",fg:"#185FA5"},
+  {code:"EXC",label:"Excursii în țară și străinătate",icon:"✈️",bg:"#EAF3DE",fg:"#27500A"},
+];
+const MONTHS_RO=["Ianuarie","Februarie","Martie","Aprilie","Mai","Iunie","Iulie","August","Septembrie","Octombrie","Noiembrie","Decembrie"];
+const MONTHS_SHORT=["Ian","Feb","Mar","Apr","Mai","Iun","Iul","Aug","Sep","Oct","Nov","Dec"];
+
+const IMPORTED=[{"id":1767182400000,"cat":"A","amount":1250.0,"desc":"chelt pers","date":"2025-12-31T12:00:00"},{"id":1767182400001,"cat":"R1","amount":150.0,"desc":"la romana CT","date":"2025-12-31T12:00:00"},{"id":1767182400002,"cat":"M1","amount":100.0,"desc":"div cump","date":"2025-12-31T12:00:00"},{"id":1767182400003,"cat":"R1","amount":520.0,"desc":"cump iesire  Cristi  CT ( creveti,vin)","date":"2025-12-31T12:00:00"},{"id":1767182400004,"cat":"P","amount":700.0,"desc":"chelt persO","date":"2025-12-31T12:00:00"},{"id":1767182400005,"cat":"R1","amount":550.0,"desc":"nazzar","date":"2025-12-31T12:00:00"},{"id":1767182400006,"cat":"A1","amount":250.0,"desc":"curatenie S01","date":"2025-12-31T12:00:00"},{"id":1767182400007,"cat":"EXC","amount":1800.0,"desc":"bilete cipru Febr","date":"2025-12-31T12:00:00"},{"id":1767182400008,"cat":"ACG","amount":200.0,"desc":"div chelt taxi","date":"2025-12-31T12:00:00"},{"id":1767182400009,"cat":"M1","amount":500.0,"desc":"mancare S01","date":"2025-12-31T12:00:00"},{"id":1767182400010,"cat":"M1","amount":600.0,"desc":"decontare bonuri IAN","date":"2025-12-31T12:00:00"},{"id":1767182400011,"cat":"M1","amount":320.0,"desc":"carne de strut","date":"2025-12-31T12:00:00"},{"id":1767182400012,"cat":"P","amount":200.0,"desc":"chelt persO","date":"2025-12-31T12:00:00"},{"id":1767182400013,"cat":"ACG","amount":100.0,"desc":"meci hochei","date":"2025-12-31T12:00:00"},{"id":1767182400014,"cat":"M1","amount":450.0,"desc":"div cump mancare Petre","date":"2025-12-31T12:00:00"},{"id":1767787200015,"cat":"A","amount":1250.0,"desc":"chelt pers S02","date":"2026-01-07T12:00:00"},{"id":1767787200016,"cat":"M1","amount":750.0,"desc":"mancare","date":"2026-01-07T12:00:00"},{"id":1767787200017,"cat":"P","amount":750.0,"desc":"worldclass P 2","date":"2026-01-07T12:00:00"},{"id":1767787200018,"cat":"A1","amount":250.0,"desc":"curatenie S02","date":"2026-01-07T12:00:00"},{"id":1767787200019,"cat":"C1","amount":830.0,"desc":"haine copii Z+A+R","date":"2026-01-07T12:00:00"},{"id":1767787200020,"cat":"C2","amount":200.0,"desc":"chelt scoala Z+A","date":"2026-01-07T12:00:00"},{"id":1767787200021,"cat":"C1","amount":4310.0,"desc":"after 3x","date":"2026-01-07T12:00:00"},{"id":1768392000022,"cat":"M1","amount":120.0,"desc":"mancare P","date":"2026-01-14T12:00:00"},{"id":1768392000023,"cat":"C2","amount":250.0,"desc":"cadou Patrick","date":"2026-01-14T12:00:00"},{"id":1768392000024,"cat":"R1","amount":933.0,"desc":"iesire Wh 18/10","date":"2026-01-14T12:00:00"},{"id":1768392000025,"cat":"A1","amount":4750.0,"desc":"rata UNCR","date":"2026-01-14T12:00:00"},{"id":1768996800026,"cat":"A","amount":1250.0,"desc":"chelt pers s04","date":"2026-01-21T12:00:00"},{"id":1768996800027,"cat":"M1","amount":750.0,"desc":"mancare S04","date":"2026-01-21T12:00:00"},{"id":1768996800028,"cat":"A1","amount":500.0,"desc":"motorina card","date":"2026-01-21T12:00:00"},{"id":1768996800029,"cat":"A","amount":200.0,"desc":"manusi","date":"2026-01-21T12:00:00"},{"id":1768996800030,"cat":"P","amount":25.0,"desc":"div chelt sala","date":"2026-01-21T12:00:00"},{"id":1768996800031,"cat":"A1","amount":250.0,"desc":"curatenie s04","date":"2026-01-21T12:00:00"},{"id":1768996800032,"cat":"C2","amount":380.0,"desc":"deplasare gheorghieni","date":"2026-01-21T12:00:00"},{"id":1768996800033,"cat":"C2","amount":220.0,"desc":"jambiere radu","date":"2026-01-21T12:00:00"},{"id":1768996800034,"cat":"ACG","amount":2000.0,"desc":"div mobila birouri","date":"2026-01-21T12:00:00"},{"id":1768996800035,"cat":"A1","amount":800.0,"desc":"enel","date":"2026-01-21T12:00:00"},{"id":1768996800036,"cat":"P","amount":170.0,"desc":"SKI","date":"2026-01-21T12:00:00"},{"id":1768996800037,"cat":"P","amount":480.0,"desc":"philips 360","date":"2026-01-21T12:00:00"},{"id":1768996800038,"cat":"EXC","amount":3250.0,"desc":"cazare cipru","date":"2026-01-21T12:00:00"},{"id":1768996800039,"cat":"M1","amount":270.0,"desc":"mancare P","date":"2026-01-21T12:00:00"},{"id":1768996800040,"cat":"A","amount":50.0,"desc":"tigari","date":"2026-01-21T12:00:00"},{"id":1769601600041,"cat":"A","amount":1250.0,"desc":"chelt pers S05","date":"2026-01-28T12:00:00"},{"id":1769601600042,"cat":"M1","amount":750.0,"desc":"mancare S05","date":"2026-01-28T12:00:00"},{"id":1769601600043,"cat":"EXC","amount":250.0,"desc":"bagaj wizz cipru","date":"2026-01-28T12:00:00"},{"id":1769601600044,"cat":"C1","amount":180.0,"desc":"eng after radu","date":"2026-01-28T12:00:00"},{"id":1769601600045,"cat":"C2","amount":180.0,"desc":"orange radu","date":"2026-01-28T12:00:00"},{"id":1769601600046,"cat":"A1","amount":250.0,"desc":"curatenie S05","date":"2026-01-28T12:00:00"},{"id":1769601600047,"cat":"M1","amount":120.0,"desc":"mancare Petre","date":"2026-01-28T12:00:00"},{"id":1769601600048,"cat":"P","amount":50.0,"desc":"div chelt sala","date":"2026-01-28T12:00:00"},{"id":1769601600049,"cat":"C2","amount":3700.0,"desc":"cazare Druzhba Praga - partial","date":"2026-01-28T12:00:00"},{"id":1769601600050,"cat":"C2","amount":1000.0,"desc":"avans camp Druzhba","date":"2026-01-28T12:00:00"},{"id":1769601600051,"cat":"A1","amount":92.0,"desc":"digi","date":"2026-01-28T12:00:00"},{"id":1769601600052,"cat":"ACG","amount":100.0,"desc":"spalat masina","date":"2026-01-28T12:00:00"},{"id":1769601600053,"cat":"A1","amount":420.0,"desc":"motorina plecare GL","date":"2026-01-28T12:00:00"},{"id":1769601600054,"cat":"ACG","amount":200.0,"desc":"deparaiztare Bluey","date":"2026-01-28T12:00:00"},{"id":1769601600055,"cat":"ACG","amount":200.0,"desc":"motorina CT","date":"2026-01-28T12:00:00"},{"id":1769601600056,"cat":"C2","amount":520.0,"desc":"cazare Galati turneu","date":"2026-01-28T12:00:00"},{"id":1769601600057,"cat":"R1","amount":300.0,"desc":"bani cheltuala Galati","date":"2026-01-28T12:00:00"},{"id":1769601600058,"cat":"ACG","amount":200.0,"desc":"spalat multivan","date":"2026-01-28T12:00:00"},{"id":1769601600059,"cat":"M1","amount":400.0,"desc":"div cumparaturi mancare","date":"2026-01-28T12:00:00"},{"id":1769601600060,"cat":"ACG","amount":330.0,"desc":"rovigneta Multivan","date":"2026-01-28T12:00:00"},{"id":1769601600061,"cat":"P","amount":250.0,"desc":"iesire WH","date":"2026-01-28T12:00:00"},{"id":1769601600062,"cat":"R1","amount":250.0,"desc":"prajituri ana","date":"2026-01-28T12:00:00"},{"id":1769601600063,"cat":"A","amount":1250.0,"desc":"chelt pers s 06","date":"2026-01-28T12:00:00"},{"id":1769601600064,"cat":"M1","amount":750.0,"desc":"mancare S 06","date":"2026-01-28T12:00:00"},{"id":1769601600065,"cat":"A1","amount":300.0,"desc":"curatenie S 06","date":"2026-01-28T12:00:00"},{"id":1769601600066,"cat":"C2","amount":140.0,"desc":"orange Radu","date":"2026-01-28T12:00:00"},{"id":1769601600067,"cat":"A","amount":75.0,"desc":"tigari","date":"2026-01-28T12:00:00"},{"id":1769601600068,"cat":"M1","amount":125.0,"desc":"mancare","date":"2026-01-28T12:00:00"},{"id":1769601600069,"cat":"P","amount":75.0,"desc":"donatie","date":"2026-01-28T12:00:00"},{"id":1769601600070,"cat":"M1","amount":225.0,"desc":"mancare mega 4/02","date":"2026-01-28T12:00:00"},{"id":1769601600071,"cat":"P","amount":380.0,"desc":"chelt persO","date":"2026-01-28T12:00:00"},{"id":1769601600072,"cat":"ACG","amount":365.0,"desc":"div medicamente","date":"2026-01-28T12:00:00"},{"id":1769601600073,"cat":"C2","amount":130.0,"desc":"bani radu Carta","date":"2026-01-28T12:00:00"},{"id":1769601600074,"cat":"ACG","amount":600.0,"desc":"deplasare Carta Anca","date":"2026-01-28T12:00:00"},{"id":1769601600075,"cat":"M1","amount":75.0,"desc":"mancare mega","date":"2026-01-28T12:00:00"},{"id":1769601600076,"cat":"A1","amount":200.0,"desc":"motorina cash","date":"2026-01-28T12:00:00"},{"id":1769601600077,"cat":"R1","amount":220.0,"desc":"pancakes","date":"2026-01-28T12:00:00"},{"id":1769601600078,"cat":"ACG","amount":500.0,"desc":"aspirator de masa","date":"2026-01-28T12:00:00"},{"id":1770811200079,"cat":"A","amount":1250.0,"desc":"chelt pers S07","date":"2026-02-11T12:00:00"},{"id":1770811200080,"cat":"M1","amount":750.0,"desc":"mancare S 07","date":"2026-02-11T12:00:00"},{"id":1770811200081,"cat":"C2","amount":840.0,"desc":"ortodent ZOE","date":"2026-02-11T12:00:00"},{"id":1770811200082,"cat":"M1","amount":600.0,"desc":"decontare bonuri IAN","date":"2026-02-11T12:00:00"},{"id":1770811200083,"cat":"P","amount":380.0,"desc":"div chelt pers ( carte+creatina )","date":"2026-02-11T12:00:00"},{"id":1770811200084,"cat":"ACG","amount":650.0,"desc":"hdd wifi","date":"2026-02-11T12:00:00"},{"id":1770811200085,"cat":"M1","amount":150.0,"desc":"mancare mega","date":"2026-02-11T12:00:00"},{"id":1770811200086,"cat":"C1","amount":4010.0,"desc":"after 3 x","date":"2026-02-11T12:00:00"},{"id":1770811200087,"cat":"A1","amount":620.0,"desc":"PPC 2008543","date":"2026-02-11T12:00:00"},{"id":1770811200088,"cat":"A1","amount":710.0,"desc":"Engie","date":"2026-02-11T12:00:00"},{"id":1770811200089,"cat":"P","amount":200.0,"desc":"tuns","date":"2026-02-11T12:00:00"},{"id":1770811200090,"cat":"A1","amount":250.0,"desc":"curatenie S7","date":"2026-02-11T12:00:00"},{"id":1770811200091,"cat":"M1","amount":80.0,"desc":"mancare mega","date":"2026-02-11T12:00:00"},{"id":1770811200092,"cat":"A","amount":400.0,"desc":"div chelt pers","date":"2026-02-11T12:00:00"},{"id":1770811200093,"cat":"ACG","amount":900.0,"desc":"acoperire div chelt cadouri+casa","date":"2026-02-11T12:00:00"},{"id":1770811200094,"cat":"R1","amount":180.0,"desc":"pizza hut","date":"2026-02-11T12:00:00"},{"id":1770811200095,"cat":"EXC","amount":600.0,"desc":"bagaj supl","date":"2026-02-11T12:00:00"},{"id":1771416000096,"cat":"M1","amount":750.0,"desc":"mancare S8","date":"2026-02-18T12:00:00"},{"id":1771416000097,"cat":"M1","amount":150.0,"desc":"mancare petre","date":"2026-02-18T12:00:00"},{"id":1771416000098,"cat":"EXC","amount":8000.0,"desc":"total chelt exc Cipru estimat","date":"2026-02-18T12:00:00"},{"id":1771416000099,"cat":"EXC","amount":1100.0,"desc":"pensiune caine","date":"2026-02-18T12:00:00"},{"id":1771416000100,"cat":"R1","amount":650.0,"desc":"rstaurant brera","date":"2026-02-18T12:00:00"},{"id":1771416000101,"cat":"A1","amount":4800.0,"desc":"UNCR rate","date":"2026-02-18T12:00:00"},{"id":1771416000102,"cat":"P","amount":750.0,"desc":"Worldclass","date":"2026-02-18T12:00:00"},{"id":1771416000103,"cat":"A1","amount":550.0,"desc":"motorina card","date":"2026-02-18T12:00:00"},{"id":1772020800104,"cat":"M1","amount":750.0,"desc":"mancare S9","date":"2026-02-25T12:00:00"},{"id":1772020800105,"cat":"A","amount":1250.0,"desc":"chelt pers S9","date":"2026-02-25T12:00:00"},{"id":1772020800106,"cat":"P","amount":100.0,"desc":"chelt pers /cadouri","date":"2026-02-25T12:00:00"},{"id":1772020800107,"cat":"ACG","amount":470.0,"desc":"diverese cadouri+martisoare","date":"2026-02-25T12:00:00"},{"id":1772020800108,"cat":"C2","amount":100.0,"desc":"cadou scoala invatatoare","date":"2026-02-25T12:00:00"},{"id":1772020800109,"cat":"C2","amount":120.0,"desc":"engleza after","date":"2026-02-25T12:00:00"},{"id":1772020800110,"cat":"A1","amount":250.0,"desc":"curatenie s9","date":"2026-02-25T12:00:00"},{"id":1772020800111,"cat":"P","amount":550.0,"desc":"dexa","date":"2026-02-25T12:00:00"},{"id":1772020800112,"cat":"P","amount":150.0,"desc":"masa pranz","date":"2026-02-25T12:00:00"},{"id":1772020800113,"cat":"ACG","amount":800.0,"desc":"reparatie centrala","date":"2026-02-25T12:00:00"},{"id":1772020800114,"cat":"A1","amount":200.0,"desc":"benzina deplasare hochei","date":"2026-02-25T12:00:00"},{"id":1772020800115,"cat":"ACG","amount":410.0,"desc":"cazare + chelt hochei","date":"2026-02-25T12:00:00"},{"id":1772020800116,"cat":"R1","amount":300.0,"desc":"diverese chelt rest Gheorghieni","date":"2026-02-25T12:00:00"},{"id":1772625600117,"cat":"A","amount":1250.0,"desc":"chelt pers S 10","date":"2026-03-04T12:00:00"},{"id":1772625600118,"cat":"M1","amount":750.0,"desc":"mancare S 10","date":"2026-03-04T12:00:00"},{"id":1772625600119,"cat":"P","amount":200.0,"desc":"chelt pers","date":"2026-03-04T12:00:00"},{"id":1772625600120,"cat":"ACG","amount":1400.0,"desc":"filtru apa","date":"2026-03-04T12:00:00"},{"id":1772625600121,"cat":"A1","amount":250.0,"desc":"curatenie S10","date":"2026-03-04T12:00:00"},{"id":1772625600122,"cat":"A","amount":1250.0,"desc":"chelt pers S 11- avans","date":"2026-03-04T12:00:00"},{"id":1772625600123,"cat":"M1","amount":140.0,"desc":"mancare mega 5/03","date":"2026-03-04T12:00:00"},{"id":1773230400124,"cat":"M1","amount":750.0,"desc":"mancare S 11","date":"2026-03-11T12:00:00"},{"id":1773230400125,"cat":"ACG","amount":1700.0,"desc":"parbriz Multivan","date":"2026-03-11T12:00:00"},{"id":1773230400126,"cat":"M1","amount":120.0,"desc":"mancare 9/03 mega","date":"2026-03-11T12:00:00"},{"id":1773230400127,"cat":"P","amount":15.0,"desc":"chelt pers","date":"2026-03-11T12:00:00"},{"id":1773230400128,"cat":"ACG","amount":60.0,"desc":"foarfeca tuns pomi","date":"2026-03-11T12:00:00"},{"id":1773230400129,"cat":"A1","amount":250.0,"desc":"curatenie S11","date":"2026-03-11T12:00:00"},{"id":1773230400130,"cat":"P","amount":180.0,"desc":"AI sushi","date":"2026-03-11T12:00:00"},{"id":1773230400131,"cat":"ACG","amount":250.0,"desc":"diverese treceri pod regularizare","date":"2026-03-11T12:00:00"},{"id":1773230400132,"cat":"A1","amount":300.0,"desc":"motorina card","date":"2026-03-11T12:00:00"},{"id":1773230400133,"cat":"A","amount":700.0,"desc":"diverese chelt personale","date":"2026-03-11T12:00:00"},{"id":1773230400134,"cat":"P","amount":180.0,"desc":"AI sushi","date":"2026-03-11T12:00:00"},{"id":1773230400135,"cat":"ACG","amount":500.0,"desc":"botez CT","date":"2026-03-11T12:00:00"},{"id":1773230400136,"cat":"P","amount":200.0,"desc":"tuns 12/03","date":"2026-03-11T12:00:00"},{"id":1773230400137,"cat":"C1","amount":4640.0,"desc":"after MARTIE","date":"2026-03-11T12:00:00"},{"id":1773230400138,"cat":"M1","amount":140.0,"desc":"mancare MEGA 12/3","date":"2026-03-11T12:00:00"},{"id":1773230400139,"cat":"ACG","amount":200.0,"desc":"medicamente","date":"2026-03-11T12:00:00"},{"id":1773230400140,"cat":"P","amount":100.0,"desc":"spalat tesla","date":"2026-03-11T12:00:00"},{"id":1773230400141,"cat":"P","amount":300.0,"desc":"benzina dacia","date":"2026-03-11T12:00:00"},{"id":1773230400142,"cat":"P","amount":150.0,"desc":"la partid","date":"2026-03-11T12:00:00"},{"id":1773230400143,"cat":"P","amount":750.0,"desc":"abonament WCLASS","date":"2026-03-11T12:00:00"},{"id":1773230400144,"cat":"R1","amount":500.0,"desc":"brera 15/3","date":"2026-03-11T12:00:00"},{"id":1773230400145,"cat":"M1","amount":150.0,"desc":"mega image 15/3","date":"2026-03-11T12:00:00"},{"id":1773835200146,"cat":"A","amount":1250.0,"desc":"chelt pers S12","date":"2026-03-18T12:00:00"},{"id":1773835200147,"cat":"M1","amount":750.0,"desc":"mancare S12","date":"2026-03-18T12:00:00"},{"id":1773835200148,"cat":"A1","amount":4700.0,"desc":"rata UNCR","date":"2026-03-18T12:00:00"},{"id":1773835200149,"cat":"P","amount":120.0,"desc":"parcare OTP","date":"2026-03-18T12:00:00"},{"id":1773835200150,"cat":"C2","amount":300.0,"desc":"cazare galati","date":"2026-03-18T12:00:00"},{"id":1773835200151,"cat":"A1","amount":250.0,"desc":"curatenie S12","date":"2026-03-18T12:00:00"},{"id":1773835200152,"cat":"P","amount":1250.0,"desc":"chelt olanda","date":"2026-03-18T12:00:00"},{"id":1773835200153,"cat":"A1","amount":183.0,"desc":"digi 2 fact","date":"2026-03-18T12:00:00"},{"id":1773835200154,"cat":"A1","amount":297.0,"desc":"sal 1659209","date":"2026-03-18T12:00:00"},{"id":1773835200155,"cat":"C2","amount":135.0,"desc":"orange Radu","date":"2026-03-18T12:00:00"},{"id":1773835200156,"cat":"A1","amount":731.0,"desc":"Seria ENG nr.10421717835","date":"2026-03-18T12:00:00"},{"id":1773835200157,"cat":"A1","amount":620.0,"desc":"26MI nr. 02008543","date":"2026-03-18T12:00:00"},{"id":1773835200158,"cat":"A1","amount":230.0,"desc":"apavol 13911","date":"2026-03-18T12:00:00"},{"id":1773835200159,"cat":"A1","amount":360.0,"desc":"apavo l47159","date":"2026-03-18T12:00:00"},{"id":1773835200160,"cat":"ACG","amount":200.0,"desc":"spalat multivan","date":"2026-03-18T12:00:00"},{"id":1773835200161,"cat":"R1","amount":180.0,"desc":"pizza mania mega","date":"2026-03-18T12:00:00"},{"id":1773835200162,"cat":"M1","amount":180.0,"desc":"mancare mega","date":"2026-03-18T12:00:00"},{"id":1773835200163,"cat":"C2","amount":300.0,"desc":"dublare cazare GL > A","date":"2026-03-18T12:00:00"},{"id":1773835200164,"cat":"ACG","amount":500.0,"desc":"cadouri Adela","date":"2026-03-18T12:00:00"},{"id":1773835200165,"cat":"A1","amount":450.0,"desc":"motorina card","date":"2026-03-18T12:00:00"},{"id":1773835200166,"cat":"ACG","amount":150.0,"desc":"div consumabile multivan","date":"2026-03-18T12:00:00"},{"id":1773835200167,"cat":"R1","amount":100.0,"desc":"cash deplasare GL","date":"2026-03-18T12:00:00"},{"id":1773835200168,"cat":"ACG","amount":300.0,"desc":"instalator filtru","date":"2026-03-18T12:00:00"},{"id":1773835200169,"cat":"C2","amount":80.0,"desc":"jucarie zoe","date":"2026-03-18T12:00:00"},{"id":1774440000170,"cat":"M1","amount":750.0,"desc":"mancare S13","date":"2026-03-25T12:00:00"},{"id":1774440000171,"cat":"A","amount":1250.0,"desc":"chelt pers S13","date":"2026-03-25T12:00:00"},{"id":1774440000172,"cat":"R1","amount":250.0,"desc":"div chelt GL","date":"2026-03-25T12:00:00"},{"id":1774440000173,"cat":"P","amount":200.0,"desc":"chelt persO","date":"2026-03-25T12:00:00"},{"id":1774440000174,"cat":"P","amount":80.0,"desc":"mici","date":"2026-03-25T12:00:00"},{"id":1774440000175,"cat":"C2","amount":600.0,"desc":"exc gemeni - tr anca","date":"2026-03-25T12:00:00"},{"id":1774440000176,"cat":"C2","amount":500.0,"desc":"avans tabara tr anca","date":"2026-03-25T12:00:00"},{"id":1774440000177,"cat":"C2","amount":120.0,"desc":"teatru gemeni tr anca","date":"2026-03-25T12:00:00"},{"id":1774440000178,"cat":"P","amount":700.0,"desc":"cardiolog","date":"2026-03-25T12:00:00"},{"id":1774440000179,"cat":"A1","amount":550.0,"desc":"motorina CT","date":"2026-03-25T12:00:00"},{"id":1774440000180,"cat":"P","amount":100.0,"desc":"chelt pers","date":"2026-03-25T12:00:00"},{"id":1774440000181,"cat":"ACG","amount":300.0,"desc":"chelt zi nastere cclaudia","date":"2026-03-25T12:00:00"},{"id":1774440000182,"cat":"A1","amount":600.0,"desc":"motirin cash","date":"2026-03-25T12:00:00"},{"id":1775044800183,"cat":"A","amount":1250.0,"desc":"chelt pers S14","date":"2026-04-01T12:00:00"},{"id":1775044800184,"cat":"M1","amount":750.0,"desc":"mancare S14","date":"2026-04-01T12:00:00"},{"id":1775044800185,"cat":"M1","amount":250.0,"desc":"mancare S14","date":"2026-04-01T12:00:00"},{"id":1775044800186,"cat":"C2","amount":240.0,"desc":"engl after Radu","date":"2026-04-01T12:00:00"},{"id":1775044800187,"cat":"ACG","amount":450.0,"desc":"cadou SORIN","date":"2026-04-01T12:00:00"},{"id":1775044800188,"cat":"P","amount":580.0,"desc":"endocrinologie","date":"2026-04-01T12:00:00"},{"id":1775044800189,"cat":"P","amount":50.0,"desc":"div chelt pers","date":"2026-04-01T12:00:00"},{"id":1775044800190,"cat":"A","amount":60.0,"desc":"tigari","date":"2026-04-01T12:00:00"},{"id":1775044800191,"cat":"P","amount":850.0,"desc":"chelt persO","date":"2026-04-01T12:00:00"},{"id":1775044800192,"cat":"A1","amount":250.0,"desc":"curatenie S14","date":"2026-04-01T12:00:00"},{"id":1775044800193,"cat":"C2","amount":250.0,"desc":"reparatie PS5","date":"2026-04-01T12:00:00"},{"id":1775044800194,"cat":"ACG","amount":1400.0,"desc":"reparatie centrala","date":"2026-04-01T12:00:00"},{"id":1775044800195,"cat":"A1","amount":210.0,"desc":"motorina cash","date":"2026-04-01T12:00:00"},{"id":1775044800196,"cat":"P","amount":100.0,"desc":"div chelt","date":"2026-04-01T12:00:00"},{"id":1775044800197,"cat":"P","amount":50.0,"desc":"Restaurant gargantua","date":"2026-04-01T12:00:00"},{"id":1775649600198,"cat":"A","amount":1250.0,"desc":"chelt pers S 15","date":"2026-04-08T12:00:00"},{"id":1775649600199,"cat":"M1","amount":750.0,"desc":"mancare S15","date":"2026-04-08T12:00:00"},{"id":1775649600200,"cat":"M1","amount":80.0,"desc":"mancare Lidl","date":"2026-04-08T12:00:00"},{"id":1775649600201,"cat":"A1","amount":250.0,"desc":"curatenie S15","date":"2026-04-08T12:00:00"},{"id":1775649600202,"cat":"M1","amount":800.0,"desc":"descarcare bonuri","date":"2026-04-08T12:00:00"},{"id":1775649600203,"cat":"C2","amount":250.0,"desc":"chelt medicale radu - orteza","date":"2026-04-08T12:00:00"},{"id":1775649600204,"cat":"R1","amount":750.0,"desc":"diferite chelt CT","date":"2026-04-08T12:00:00"},{"id":1775649600205,"cat":"A","amount":2000.0,"desc":"chelt personale supl paste","date":"2026-04-08T12:00:00"},{"id":1775649600206,"cat":"R1","amount":500.0,"desc":"pizzaro","date":"2026-04-08T12:00:00"},{"id":1775649600207,"cat":"P","amount":200.0,"desc":"dentist","date":"2026-04-08T12:00:00"},{"id":1775649600208,"cat":"R1","amount":250.0,"desc":"inghetata CT","date":"2026-04-08T12:00:00"},{"id":1775649600209,"cat":"ACG","amount":800.0,"desc":"cadou Anca paste","date":"2026-04-08T12:00:00"},{"id":1775649600210,"cat":"R1","amount":330.0,"desc":"bautura Ovidiu dif Noel","date":"2026-04-08T12:00:00"},{"id":1775649600211,"cat":"A1","amount":200.0,"desc":"incarcari Tesla","date":"2026-04-08T12:00:00"},{"id":1776254400212,"cat":"A","amount":1250.0,"desc":"chelt pers S 16","date":"2026-04-15T12:00:00"},{"id":1776254400213,"cat":"M1","amount":750.0,"desc":"mancare S16","date":"2026-04-15T12:00:00"},{"id":1776254400214,"cat":"A1","amount":390.0,"desc":"motorina cash","date":"2026-04-15T12:00:00"},{"id":1776254400215,"cat":"A","amount":400.0,"desc":"Vydura","date":"2026-04-15T12:00:00"},{"id":1776254400216,"cat":"M1","amount":40.0,"desc":"Lidl","date":"2026-04-15T12:00:00"},{"id":1776254400217,"cat":"A1","amount":4700.0,"desc":"rata UNCR","date":"2026-04-15T12:00:00"},{"id":1776254400218,"cat":"C2","amount":122.0,"desc":"orange R","date":"2026-04-15T12:00:00"},{"id":1776254400219,"cat":"C2","amount":415.0,"desc":"cambridge R","date":"2026-04-15T12:00:00"},{"id":1776254400220,"cat":"A1","amount":250.0,"desc":"curatenie S 16","date":"2026-04-15T12:00:00"},{"id":1776254400221,"cat":"C2","amount":430.0,"desc":"cercei ZOE","date":"2026-04-15T12:00:00"},{"id":1776254400222,"cat":"P","amount":30.0,"desc":"div chelt","date":"2026-04-15T12:00:00"},{"id":1776254400223,"cat":"P","amount":730.0,"desc":"abonament Wclass","date":"2026-04-15T12:00:00"},{"id":1776254400224,"cat":"P","amount":450.0,"desc":"dentist 16/04","date":"2026-04-15T12:00:00"},{"id":1776254400225,"cat":"ACG","amount":290.0,"desc":"arcada + altele Hornbach","date":"2026-04-15T12:00:00"},{"id":1776254400226,"cat":"R1","amount":450.0,"desc":"gratar 18/04","date":"2026-04-15T12:00:00"},{"id":1776254400227,"cat":"A","amount":75.0,"desc":"tigari","date":"2026-04-15T12:00:00"},{"id":1776254400228,"cat":"C2","amount":50.0,"desc":"cartonase fifa","date":"2026-04-15T12:00:00"},{"id":1776859200229,"cat":"C2","amount":826.0,"desc":"adidasi Radu + ZOE","date":"2026-04-22T12:00:00"},{"id":1776859200230,"cat":"A","amount":1000.0,"desc":"chelt personale","date":"2026-04-22T12:00:00"},{"id":1776859200231,"cat":"M1","amount":750.0,"desc":"mancare S17","date":"2026-04-22T12:00:00"},{"id":1776859200232,"cat":"C2","amount":4200.0,"desc":"gradinita A+Z","date":"2026-04-22T12:00:00"},{"id":1776859200233,"cat":"P","amount":125.0,"desc":"tratt capriciosa 20/04","date":"2026-04-22T12:00:00"},{"id":1776859200234,"cat":"A1","amount":300.0,"desc":"curatenie S17","date":"2026-04-22T12:00:00"},{"id":1776859200235,"cat":"P","amount":500.0,"desc":"dentist","date":"2026-04-22T12:00:00"},{"id":1776859200236,"cat":"M1","amount":250.0,"desc":"mancareS17 supl","date":"2026-04-22T12:00:00"},{"id":1776859200237,"cat":"M1","amount":100.0,"desc":"mancare 24/04","date":"2026-04-22T12:00:00"},{"id":1776859200238,"cat":"R1","amount":100.0,"desc":"bere 24/04","date":"2026-04-22T12:00:00"},{"id":1776859200239,"cat":"P","amount":270.0,"desc":"rca Honda","date":"2026-04-22T12:00:00"},{"id":1776859200240,"cat":"P","amount":150.0,"desc":"chelt personale","date":"2026-04-22T12:00:00"},{"id":1776859200241,"cat":"R1","amount":150.0,"desc":"iesire robert","date":"2026-04-22T12:00:00"},{"id":1777464000242,"cat":"M1","amount":750.0,"desc":"mancare S18","date":"2026-04-29T12:00:00"},{"id":1777464000243,"cat":"A","amount":1000.0,"desc":"chelt pers S 18","date":"2026-04-29T12:00:00"},{"id":1777464000244,"cat":"C2","amount":1400.0,"desc":"camp Radu 27-30/04","date":"2026-04-29T12:00:00"},{"id":1777464000245,"cat":"C2","amount":180.0,"desc":"engleza radu after apr","date":"2026-04-29T12:00:00"},{"id":1777464000246,"cat":"P","amount":200.0,"desc":"chelt pers accident","date":"2026-04-29T12:00:00"},{"id":1777464000247,"cat":"A1","amount":600.0,"desc":"motorina cash CT","date":"2026-04-29T12:00:00"},{"id":1777464000248,"cat":"P","amount":450.0,"desc":"ITP Dacia","date":"2026-04-29T12:00:00"},{"id":1777464000249,"cat":"C2","amount":180.0,"desc":"ministick radu","date":"2026-04-29T12:00:00"},{"id":1777464000250,"cat":"R1","amount":505.0,"desc":"kaipan 29/04","date":"2026-04-29T12:00:00"},{"id":1777464000251,"cat":"P","amount":460.0,"desc":"analize 30/04","date":"2026-04-29T12:00:00"},{"id":1777464000252,"cat":"M1","amount":100.0,"desc":"mancare supl 30/04","date":"2026-04-29T12:00:00"},{"id":1777464000253,"cat":"A1","amount":250.0,"desc":"curatenie S18","date":"2026-04-29T12:00:00"},{"id":1777464000254,"cat":"P","amount":400.0,"desc":"benzina dacia gresita","date":"2026-04-29T12:00:00"},{"id":1777464000255,"cat":"R1","amount":220.0,"desc":"inghetata Ovidiu","date":"2026-04-29T12:00:00"},{"id":1777464000256,"cat":"R1","amount":100.0,"desc":"prajituri OVD","date":"2026-04-29T12:00:00"},{"id":1777464000257,"cat":"ACG","amount":500.0,"desc":"cadou carmen","date":"2026-04-29T12:00:00"},{"id":1777464000258,"cat":"A1","amount":450.0,"desc":"motorin card","date":"2026-04-29T12:00:00"},{"id":1777464000259,"cat":"C2","amount":250.0,"desc":"pantofi alex","date":"2026-04-29T12:00:00"},{"id":1777464000260,"cat":"A1","amount":200.0,"desc":"curent tesla","date":"2026-04-29T12:00:00"},{"id":1777464000261,"cat":"ACG","amount":300.0,"desc":"curatenie Navodari","date":"2026-04-29T12:00:00"},{"id":1777464000262,"cat":"M1","amount":225.0,"desc":"mancare mega+lidl","date":"2026-04-29T12:00:00"},{"id":1778064000263,"cat":"A","amount":1000.0,"desc":"chelt pers S 19","date":"2026-05-06T12:00:00"},{"id":1778064000264,"cat":"M1","amount":750.0,"desc":"mancare s19","date":"2026-05-06T12:00:00"},{"id":1778064000265,"cat":"P","amount":750.0,"desc":"dentist 04/05","date":"2026-05-06T12:00:00"},{"id":1778064000266,"cat":"M1","amount":50.0,"desc":"mancaresupl","date":"2026-05-06T12:00:00"},{"id":1778064000267,"cat":"A1","amount":106.0,"desc":"digi","date":"2026-05-06T12:00:00"},{"id":1778064000268,"cat":"C2","amount":655.0,"desc":"diverse chelt pt 3x","date":"2026-05-06T12:00:00"},{"id":1778064000269,"cat":"A","amount":1000.0,"desc":"chelt pers supl","date":"2026-05-06T12:00:00"}];
+
+let entries=[],budgets={},pendingDelete=null;
+let listMode='week',listOffset=0,statsMode='week',statsOffset=0,budgetMonthOffset=0;
+
+function save(){try{localStorage.setItem('fam_pwa',JSON.stringify({entries,budgets}));}catch(e){}}
+function load(){
+  try{const d=localStorage.getItem('fam_pwa');if(d){const p=JSON.parse(d);entries=p.entries||[];budgets=p.budgets||{};}}catch(e){}
+  if(entries.length===0){entries=[...IMPORTED];save();}
+}
+function getCat(c){return CATS.find(x=>x.code===c)||CATS[4];}
+function toast(msg,color='#1D9E75'){const t=document.getElementById('toast');t.textContent=msg;t.style.background=color;t.style.display='block';setTimeout(()=>t.style.display='none',2500);}
+function updateDate(){
+  const s=new Date().toLocaleDateString('ro-RO',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  document.getElementById('auto-date').textContent=s;
+  document.getElementById('add-date').textContent=s;
+}
+function populateSelects(){
+  const s1=document.getElementById('cat-select'),s2=document.getElementById('filter-cat'),s3=document.getElementById('exp-cat');
+  s1.innerHTML='<option value="">— Selectează coș —</option>';
+  CATS.forEach(c=>{
+    s1.appendChild(new Option(`${c.icon}  ${c.code} — ${c.label}`,c.code));
+    s2.appendChild(new Option(`${c.icon} ${c.code} — ${c.label}`,c.code));
+    s3.appendChild(new Option(`${c.icon} ${c.code} — ${c.label}`,c.code));
+  });
+  const sm=document.getElementById('exp-month');
+  const months=new Set();
+  entries.forEach(e=>{const d=new Date(e.date);months.add(`${d.getFullYear()}-${d.getMonth()}`);});
+  [...months].sort().reverse().forEach(m=>{const[yr,mo]=m.split('-').map(Number);sm.appendChild(new Option(`${MONTHS_RO[mo]} ${yr}`,m));});
+}
+function addEntry(){
+  const cat=document.getElementById('cat-select').value,amount=parseFloat(document.getElementById('amount-input').value),desc=document.getElementById('desc-input').value.trim();
+  if(!cat){toast('Selectează o categorie!','#DC2626');return;}
+  if(!amount||amount<=0){toast('Introdu o sumă validă!','#DC2626');return;}
+  entries.unshift({id:Date.now(),cat,amount,desc,date:new Date().toISOString()});
+  save();
+  document.getElementById('amount-input').value='';document.getElementById('desc-input').value='';document.getElementById('cat-select').value='';
+  toast('✓ Cheltuială înregistrată!');
+}
+function getMonday(d){const dt=new Date(d);const day=dt.getDay();dt.setDate(dt.getDate()-day+(day===0?-6:1));dt.setHours(0,0,0,0);return dt;}
+function getWeekRange(off){const mon=getMonday(new Date());mon.setDate(mon.getDate()+off*7);const sun=new Date(mon);sun.setDate(sun.getDate()+6);return{mon,sun};}
+function getMonthRange(off){const now=new Date();const mon=new Date(now.getFullYear(),now.getMonth()+off,1);const sun=new Date(mon.getFullYear(),mon.getMonth()+1,0,23,59,59,999);return{mon,sun};}
+function getYearRange(off){const yr=new Date().getFullYear()+off;return{mon:new Date(yr,0,1),sun:new Date(yr,11,31,23,59,59,999)};}
+function fmt(d){return d.toLocaleDateString('ro-RO',{day:'2-digit',month:'2-digit'});}
+function fmtFull(d){return d.toLocaleDateString('ro-RO',{weekday:'short',day:'2-digit',month:'2-digit'});}
+function periodLabel(mode,off){
+  if(mode==='week'){const{mon,sun}=getWeekRange(off);return off===0?`Săpt. curentă · ${fmt(mon)}–${fmt(sun)}`:`${fmt(mon)} – ${fmt(sun)}`;}
+  if(mode==='month'){const now=new Date();const d=new Date(now.getFullYear(),now.getMonth()+off,1);return off===0?`${MONTHS_RO[d.getMonth()]} ${d.getFullYear()} (curent)`:`${MONTHS_RO[d.getMonth()]} ${d.getFullYear()}`;}
+  const yr=new Date().getFullYear()+off;return off===0?`${yr} (curent)`:`${yr}`;
+}
+function getRange(mode,off){if(mode==='week')return getWeekRange(off);if(mode==='month')return getMonthRange(off);return getYearRange(off);}
+function getEntriesInRange(mode,off){const{mon,sun}=getRange(mode,off);return entries.filter(e=>{const d=new Date(e.date);return d>=mon&&d<=sun;});}
+function setListMode(m,btn){listMode=m;listOffset=0;pendingDelete=null;document.querySelectorAll('#tab-list .mode-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderList();}
+function setStatsMode(m,btn){statsMode=m;statsOffset=0;document.querySelectorAll('#tab-stats .mode-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderStats();}
+function changePeriod(d){pendingDelete=null;listOffset+=d;renderList();}
+function changeStatsPeriod(d){statsOffset+=d;renderStats();}
+function changeBudgetMonth(d){budgetMonthOffset+=d;renderBudget();}
+function armDelete(id){
+  if(pendingDelete===id){entries=entries.filter(e=>e.id!==id);save();pendingDelete=null;renderList();toast('🗑 Înregistrare ștearsă');}
+  else{pendingDelete=id;renderList();}
+}
+function cancelDelete(){pendingDelete=null;renderList();}
+function entryCardHTML(e){
+  const c=getCat(e.cat);const armed=pendingDelete===e.id;
+  return`<div class="entry-card${armed?' armed':''}">
+    <div class="entry-icon" style="background:${c.bg}">${c.icon}</div>
+    <div class="entry-info">
+      <div class="entry-desc">${e.desc||c.label}</div>
+      <div class="entry-meta"><span class="badge" style="background:${c.bg};color:${c.fg}">${c.code}</span><span>${fmtFull(new Date(e.date))}</span></div>
+      ${armed?`<div class="del-confirm-row"><button class="del-yes" onclick="armDelete(${e.id})">✓ Confirmă ștergerea</button><button class="del-no" onclick="cancelDelete()">✗ Anulează</button></div>`:''}
+    </div>
+    <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
+      <div class="entry-amount">${e.amount.toFixed(2)}<span> RON</span></div>
+      <button class="del-btn${armed?' armed':''}" onclick="armDelete(${e.id})" aria-label="Șterge"><i class="ti ti-${armed?'alert-triangle':'trash'}"></i></button>
+    </div>
+  </div>`;
+}
+function renderList(){
+  document.getElementById('period-label').textContent=periodLabel(listMode,listOffset);
+  const catFilter=document.getElementById('filter-cat').value;
+  let arr=getEntriesInRange(listMode,listOffset);
+  if(catFilter)arr=arr.filter(e=>e.cat===catFilter);
+  const total=arr.reduce((s,e)=>s+e.amount,0);
+  document.getElementById('list-summary').innerHTML=`<div class="sum-card"><div class="val">${total.toFixed(2)} RON</div><div class="lbl">Total</div></div><div class="sum-card"><div class="val">${arr.length}</div><div class="lbl">Înregistrări</div></div>`;
+  const el=document.getElementById('entry-list');
+  if(!arr.length){el.innerHTML=`<div class="empty"><i class="ti ti-receipt-off"></i>Nicio cheltuială în această perioadă</div>`;return;}
+  if(listMode==='year'){
+    const byMonth={};arr.forEach(e=>{const mo=new Date(e.date).getMonth();if(!byMonth[mo])byMonth[mo]=[];byMonth[mo].push(e);});
+    const months=Object.keys(byMonth).map(Number).sort((a,b)=>a-b);
+    el.innerHTML=months.map(mo=>{const group=byMonth[mo];const mTotal=group.reduce((s,e)=>s+e.amount,0);return`<div class="list-year-group"><div class="list-year-header">${MONTHS_RO[mo]} — ${mTotal.toFixed(2)} RON · ${group.length} înregistrări</div>${group.map(entryCardHTML).join('')}</div>`;}).join('');
+  } else {el.innerHTML=arr.map(entryCardHTML).join('');}
+}
+function renderBudget(){
+  const now=new Date();const bm=new Date(now.getFullYear(),now.getMonth()+budgetMonthOffset,1);
+  const key=`${bm.getFullYear()}-${bm.getMonth()}`;
+  document.getElementById('budget-month-label').textContent=budgetMonthOffset===0?`${MONTHS_RO[bm.getMonth()]} ${bm.getFullYear()} (curent)`:`${MONTHS_RO[bm.getMonth()]} ${bm.getFullYear()}`;
+  const arr=getEntriesInRange('month',budgetMonthOffset);
+  const totalSpent=arr.reduce((s,e)=>s+e.amount,0);
+  const totalBudget=CATS.reduce((s,c)=>s+(budgets[key+'_'+c.code]||0),0);
+  document.getElementById('budget-summary').innerHTML=`<div class="sum-card"><div class="val">${totalSpent.toFixed(2)} RON</div><div class="lbl">Cheltuit</div></div><div class="sum-card"><div class="val">${totalBudget>0?totalBudget.toFixed(2):'—'} RON</div><div class="lbl">Buget total</div></div>`;
+  const byCat={};arr.forEach(e=>{byCat[e.cat]=(byCat[e.cat]||0)+e.amount;});
+  document.getElementById('budget-list').innerHTML=CATS.map(c=>{
+    const spent=byCat[c.code]||0;const bKey=key+'_'+c.code;const budget=budgets[bKey]||0;
+    const pct=budget>0?Math.min(100,Math.round(spent/budget*100)):0;const over=budget>0&&spent>budget;
+    return`<div class="budget-row"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:20px">${c.icon}</span><span style="flex:1;font-size:13px;font-weight:600"><span class="badge" style="background:${c.bg};color:${c.fg};margin-right:6px">${c.code}</span>${c.label}</span></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div class="bar-track" style="flex:1"><div class="bar-fill" style="width:${budget>0?pct:0}%;background:${over?'#DC2626':c.fg}"></div></div><span style="font-size:12px;color:${over?'#DC2626':'#6B6B6B'};min-width:32px;text-align:right">${budget>0?pct+'%':''}</span></div><div class="budget-input-row"><span style="font-size:13px;color:#6B6B6B;flex:1">Cheltuit: <strong style="color:#1A1A1A">${spent.toFixed(2)}</strong></span><span style="font-size:13px;color:#6B6B6B">Buget:</span><input type="number" min="0" step="10" value="${budgets[bKey]||''}" placeholder="0" inputmode="decimal" onchange="setBudget('${bKey}',this.value)"><span style="font-size:13px;color:#6B6B6B">RON</span></div></div>`;
+  }).join('');
+}
+function setBudget(key,val){const v=parseFloat(val)||0;if(v>0)budgets[key]=v;else delete budgets[key];save();renderBudget();}
+function renderStats(){
+  document.getElementById('stats-period-label').textContent=periodLabel(statsMode,statsOffset);
+  const arr=getEntriesInRange(statsMode,statsOffset);
+  const total=arr.reduce((s,e)=>s+e.amount,0);
+  const el=document.getElementById('stats-content');
+  if(!arr.length){el.innerHTML=`<div class="empty"><i class="ti ti-chart-bar-off"></i>Nicio cheltuială</div>`;return;}
+  const byCat={};arr.forEach(e=>{byCat[e.cat]=(byCat[e.cat]||0)+e.amount;});
+  const sorted=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
+  const catBars=sorted.map(([code,sum])=>{const c=getCat(code);const pct=Math.round(sum/total*100);return`<div class="bar-row"><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="font-size:16px">${c.icon}</span><span style="font-size:13px;font-weight:500;flex:1">${c.code} <span style="font-weight:400;color:#6B6B6B">— ${c.label}</span></span></div><div style="display:flex;align-items:center;gap:8px"><div class="bar-track" style="flex:1"><div class="bar-fill" style="width:${pct}%;background:${c.fg}"></div></div><span style="font-size:12px;color:#6B6B6B;min-width:28px;text-align:right">${pct}%</span><span style="font-size:13px;font-weight:600;min-width:88px;text-align:right">${sum.toFixed(2)} RON</span></div></div>`;}).join('');
+  if(statsMode==='year'){
+    const yr=new Date().getFullYear()+statsOffset;
+    const byMonth={};arr.forEach(e=>{const mo=new Date(e.date).getMonth();byMonth[mo]=(byMonth[mo]||0)+e.amount;});
+    const monthsPresent=Object.keys(byMonth).map(Number).sort((a,b)=>a-b);
+    const maxM=Math.max(...Object.values(byMonth));
+    const avgMonthly=total/Math.max(1,monthsPresent.length);
+    el.innerHTML=`<div class="sum-row"><div class="sum-card"><div class="val">${total.toLocaleString('ro-RO')} RON</div><div class="lbl">Total an</div></div><div class="sum-card"><div class="val">${avgMonthly.toFixed(0)} RON</div><div class="lbl">Medie/lună</div></div></div><div class="sum-row"><div class="sum-card"><div class="val">${arr.length}</div><div class="lbl">Tranzacții</div></div><div class="sum-card"><div class="val">${monthsPresent.length}</div><div class="lbl">Luni active</div></div></div><div style="font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#6B6B6B;margin:16px 0 10px;font-weight:600">Distribuție pe categorii</div>${catBars}<div class="month-breakdown"><div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#6B6B6B;margin-bottom:10px">Detaliu lunar — ${yr}</div>${monthsPresent.map(mo=>{const sum=byMonth[mo];const pct=Math.round(sum/maxM*100);return`<div class="month-row"><span style="font-size:13px;font-weight:600;min-width:36px">${MONTHS_RO[mo].substring(0,3)}</span><div class="bar-track" style="flex:1"><div class="bar-fill" style="width:${pct}%;background:#1D9E75"></div></div><span style="font-size:13px;font-weight:600;min-width:88px;text-align:right">${sum.toFixed(0)} RON</span></div>`;}).join('')}</div>`;
+  } else {
+    el.innerHTML=`<div class="sum-row"><div class="sum-card"><div class="val">${total.toFixed(2)} RON</div><div class="lbl">Total</div></div><div class="sum-card"><div class="val">${arr.length}</div><div class="lbl">Tranzacții</div></div></div>${catBars}`;
+  }
+}
+function getExportEntries(){
+  const v=document.getElementById('exp-month').value;if(!v)return[];
+  const[yr,mo]=v.split('-').map(Number);const cat=document.getElementById('exp-cat').value;
+  const from=new Date(yr,mo,1),to=new Date(yr,mo+1,0,23,59,59,999);
+  let arr=entries.filter(e=>{const d=new Date(e.date);return d>=from&&d<=to;});
+  if(cat)arr=arr.filter(e=>e.cat===cat);return arr;
+}
+function exportCSV(){
+  const arr=getExportEntries();if(!arr.length){toast('Nu există înregistrări.','#DC2626');return;}
+  const rows=[['Data','Ziua','Cod','Categorie','Suma (RON)','Descriere']];
+  arr.forEach(e=>{const d=new Date(e.date);const c=getCat(e.cat);rows.push([d.toLocaleDateString('ro-RO'),d.toLocaleDateString('ro-RO',{weekday:'long'}),c.code,c.label,e.amount.toFixed(2),e.desc||'']);});
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download=`cheltuieli_${document.getElementById('exp-month').value}.csv`;a.click();URL.revokeObjectURL(url);
+  toast('✓ CSV exportat!');
+}
+function exportJSON(){
+  const arr=getExportEntries();if(!arr.length){toast('Nu există înregistrări.','#DC2626');return;}
+  const data=arr.map(e=>{const d=new Date(e.date);const c=getCat(e.cat);return{data:d.toLocaleDateString('ro-RO'),cod:c.code,categorie:c.label,suma:e.amount,descriere:e.desc||''};});
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download=`cheltuieli_${document.getElementById('exp-month').value}.json`;a.click();URL.revokeObjectURL(url);
+  toast('✓ JSON exportat!');
+}
+function showTab(name,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');
+  pendingDelete=null;
+  if(name==='list')renderList();if(name==='budget')renderBudget();if(name==='stats')renderStats();
+}
+
+// Register service worker
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
+}
+
+load();populateSelects();updateDate();setInterval(updateDate,60000);
+</script>
+</body>
+</html>
